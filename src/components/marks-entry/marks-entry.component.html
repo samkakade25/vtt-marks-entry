@@ -1,0 +1,82 @@
+<div class="container mx-auto p-4">
+  <h1 class="text-2xl font-bold mb-4">Student Marks Entry</h1>
+  
+  <div class="mb-4 flex items-center">
+    <button 
+      (click)="toggleVoiceRecognition()" 
+      class="px-4 py-2 rounded mr-4" 
+      [ngClass]="{'bg-red-500 text-white': isListening, 'bg-green-500 text-white': !isListening}"
+      [disabled]="!isBrowser || !isSpeechRecognitionSupported"
+    >
+      {{ isListening ? 'Stop Voice Input' : 'Start Voice Input' }}
+    </button>
+
+    <div class="form-check ml-4">
+      <input 
+        type="checkbox" 
+        id="batchMode" 
+        [(ngModel)]="batchMode"
+        class="form-check-input"
+      >
+      <label class="form-check-label ml-2" for="batchMode">Batch Mode</label>
+    </div>
+  </div>
+
+  <div *ngIf="!isSpeechRecognitionSupported && isBrowser" class="mt-2 p-2 bg-yellow-100 rounded">
+    Speech recognition is not supported in your browser
+  </div>
+  
+  <div *ngIf="isListening" class="mt-2 p-2 bg-blue-100 rounded">
+    <div class="font-bold">Voice Mode Active</div>
+    <div *ngIf="batchMode" class="text-sm font-semibold text-blue-700">
+      Batch Mode ON - Say multiple entries like "Roll numbers 5 marks 85, 6 marks 90, 7 marks 78"
+    </div>
+    <div *ngIf="!batchMode" class="text-sm">Say "Roll number [X], marks [Y]"</div>
+    <div *ngIf="transcript" class="mt-1 italic">Heard: "{{ transcript }}"</div>
+    <div *ngIf="processingStatus" class="mt-1 text-green-700">{{ processingStatus }}</div>
+  </div>
+
+  <div class="mb-4">
+    <label class="font-bold">Instructions:</label>
+    <ul class="list-disc ml-6">
+      <li>Start voice input and say "Roll number [X], marks [Y]" for single entries</li>
+      <li>Or use batch mode and say "Roll numbers 5 marks 85, 6 marks 90, 7 marks 78"</li>
+      <li>The system will automatically enter the marks for the corresponding students</li>
+    </ul>
+  </div>
+  
+  <table class="w-full border-collapse border border-gray-300">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="border border-gray-300 p-2">Roll No</th>
+        <th class="border border-gray-300 p-2">Name</th>
+        <th class="border border-gray-300 p-2">Marks</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let student of students" 
+          [ngClass]="{'bg-yellow-100': student.rollNo === lastUpdatedRoll}">
+        <td class="border border-gray-300 p-2 text-center">{{ student.rollNo }}</td>
+        <td class="border border-gray-300 p-2">{{ student.name }}</td>
+        <td class="border border-gray-300 p-2 text-center">
+          <input 
+            type="number" 
+            [(ngModel)]="student.marks" 
+            class="w-16 p-1 text-center border rounded"
+            min="0"
+            max="100"
+          >
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="mt-4">
+    <button 
+      (click)="saveMarks()" 
+      class="px-4 py-2 bg-blue-500 text-white rounded"
+    >
+      Save Marks
+    </button>
+  </div>
+</div>
